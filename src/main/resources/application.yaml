@@ -1,0 +1,18 @@
+server:
+  port : 8081
+
+general:
+  message:  "hello world!"
+
+spring:
+  cloud:
+    stream:
+      bindings:
+            input.destination: ignite-kafka-channel
+            output.destination: ignite-kafka-channel
+      kafka:
+        binder:
+            brokers: origin.os.local:9092
+            minPartitionCount: 5
+            autoAddPartitions: true
+        
