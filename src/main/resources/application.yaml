@@ -15,4 +15,11 @@ spring:
             brokers: origin.os.local:9092
             minPartitionCount: 5
             autoAddPartitions: true
-        
+
+enableFilePersistence: true
+igniteConnectorPort: 11211
+igniteServerPortRange: 47500..47509
+ignitePersistenceFilePath: d:\temp\data
+initialDelay: 10000
+fixedDelay: 60000      
+cacheName: KafkaMessage

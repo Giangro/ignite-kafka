@@ -9,7 +9,7 @@
         <version>2.1.9.RELEASE</version>
     </parent>
 
-    <groupId>it.poste.sin</groupId>
+    <groupId>org.giangro.ignitekafka</groupId>
     <artifactId>ignite-kafka</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Ignite Kafka</name>
@@ -18,7 +18,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>      
+        <java.version>1.8</java.version>    
+        <ignite.version>2.7.6</ignite.version>  
+        <h2.version>1.4.197</h2.version>
     </properties>
 
     <dependencies>
@@ -144,22 +146,27 @@
         <dependency>
             <groupId>org.apache.ignite</groupId>
             <artifactId>ignite-core</artifactId>
-            <version>2.7.6</version>
+            <version>${ignite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.ignite</groupId>
             <artifactId>ignite-spring</artifactId>
-            <version>2.7.6</version>
+            <version>${ignite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.ignite</groupId>
             <artifactId>ignite-indexing</artifactId>
-            <version>2.7.6</version>
+            <version>${ignite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.ignite</groupId>
             <artifactId>ignite-slf4j</artifactId>
-            <version>2.7.6</version>
+            <version>${ignite.version}</version>
+        </dependency>
+        <dependency>
+         <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>   
         </dependency>
     </dependencies>
     <build>
