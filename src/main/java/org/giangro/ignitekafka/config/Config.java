@@ -55,7 +55,7 @@ public class Config {
     private String ignitePersistenceFilePath;
     @Value("${cacheName}")
     private String cacheName;
-    
+
     private static final String DATA_CONFIG_NAME = "MyDataRegionConfiguration";
 
     @Bean
@@ -101,36 +101,41 @@ public class Config {
         TcpDiscoverySpi tcpDiscoverySpi = new TcpDiscoverySpi();
         TcpDiscoveryVmIpFinder tcpDiscoveryVmIpFinder = new TcpDiscoveryVmIpFinder();
         // need to be changed when it come to real cluster
-        tcpDiscoveryVmIpFinder.setAddresses(Arrays.asList("127.0.0.1:47500..47509"));       
+        tcpDiscoveryVmIpFinder.setAddresses(Arrays.asList("127.0.0.1:47500..47509"));
         tcpDiscoverySpi.setIpFinder(tcpDiscoveryVmIpFinder);
         igniteConfiguration.setLocalHost("127.0.0.1");
         igniteConfiguration.setDiscoverySpi(tcpDiscoverySpi);
-        
-         // cache configuration
-        CacheConfiguration kafkamessages=new CacheConfiguration();
+
+        // cache configuration
+        CacheConfiguration kafkamessages = new CacheConfiguration();
         kafkamessages.setCopyOnRead(false);
         // as we have one node for now
-		kafkamessages.setBackups(1);
+        kafkamessages.setBackups(1);
         kafkamessages.setAtomicityMode(CacheAtomicityMode.ATOMIC);
-		kafkamessages.setName(cacheName);
-		kafkamessages.setDataRegionName(DATA_CONFIG_NAME);
-		kafkamessages.setWriteSynchronizationMode(CacheWriteSynchronizationMode.FULL_ASYNC);
-        kafkamessages.setIndexedTypes(String.class,String.class);
-        
+        kafkamessages.setName(cacheName);
+        kafkamessages.setDataRegionName(DATA_CONFIG_NAME);
+        kafkamessages.setWriteSynchronizationMode(CacheWriteSynchronizationMode.FULL_ASYNC);
+        kafkamessages.setIndexedTypes(String.class, String.class);
+
         igniteConfiguration.setCacheConfiguration(kafkamessages);
-        
+
         return igniteConfiguration;
-        
+
     }
 
     @Bean(destroyMethod = "close")
     Ignite ignite(IgniteConfiguration igniteConfiguration) throws IgniteException {
-        final Ignite start = Ignition.start(igniteConfiguration);     
+        final Ignite start = Ignition.start(igniteConfiguration);
+        start.cluster().active(true);
         return start;
     }
 
     public String getMessage() {
         return message;
+    }
+    
+    public String getCacheName () {
+        return cacheName;
     }
 
     @PostConstruct

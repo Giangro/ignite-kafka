@@ -1,6 +1,8 @@
 package org.giangro.ignitekafka;
 
+import java.util.UUID;
 import org.giangro.ignitekafka.config.Config;
+import org.giangro.ignitekafka.service.IgniteKafkaMessageStore;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.slf4j.Logger;
@@ -23,22 +25,31 @@ public class Application {
     
     @Autowired 
     private Processor channel;
+    
+    @Autowired 
+    private IgniteKafkaMessageStore kafkaMessageStore;
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
 
     @StreamListener(Processor.INPUT)
-    public void handle(String value) {
-        logger.info("Received from kafka: " + value);
+    public void handle(String id) {
+        String message = kafkaMessageStore.get(id);
+        logger.info("Received: \"" + message + "\" from kafka with id: " + id);
     }
 
     @Scheduled(fixedDelay = 1000, initialDelay = 10000)
     public void scheduleFixedRateWithInitialDelayTask() {
         //logger.info ("sending message to kafka...");
+        
+        String id = UUID.randomUUID().toString();
+       
+        kafkaMessageStore.put(id, config.getMessage());
+        
         channel
                 .output()
-                .send(MessageBuilder.withPayload(config.getMessage())
+                .send(MessageBuilder.withPayload(id)
                         .build());
     }
         
