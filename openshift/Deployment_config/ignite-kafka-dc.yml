@@ -4,7 +4,7 @@ metadata:
   labels:
     app: ignite-kafka
   name: ignite-kafka-dc
-  namespace: ignite-kafka
+  namespace: ignite
 spec:
   replicas: 1
   revisionHistoryLimit: 10

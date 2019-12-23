@@ -4,7 +4,7 @@ metadata:
   labels:
     build: ignite-kafka
   name: ignite-kafka
-  namespace: ignite-kafka
+  namespace: ignite
 spec:
   failedBuildsHistoryLimit: 5
   nodeSelector: null

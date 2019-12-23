@@ -2,7 +2,7 @@ apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
   name: ignite-kafka
-  namespace: ignite-kafka
+  namespace: ignite
 spec:
   lookupPolicy:
     local: false

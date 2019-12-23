@@ -3,4 +3,4 @@ data:
 kind: ConfigMap
 metadata:
   name: ignite-kafka-cm
-  namespace: ignite-kafka
+  namespace: ignite

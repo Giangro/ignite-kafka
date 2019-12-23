@@ -4,7 +4,7 @@ metadata:
   labels:
     app: ignite-kafka
   name: ignite-kafka
-  namespace: ignite-kafka
+  namespace: ignite
 spec:
   ports:
   - name: web
