@@ -1,0 +1,87 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    app: ignite-kafka
+  name: ignite-kafka-dc
+  namespace: ignite-kafka
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    app: ignite-kafka
+    deploymentconfig: ignite-kafka-dc
+  strategy:
+    activeDeadlineSeconds: 21600
+    resources: {
+      }
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      annotations:
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: '8080'
+        prometheus.io/scrape: 'true'
+      labels:
+        app: ignite-kafka
+        deploymentconfig: ignite-kafka-dc
+    spec:
+      containers:
+      - env:
+        - name: TZ
+          value: Europe/Rome                                                                                                  
+        image: docker-registry.default.svc:5000/ignite-kafka:0.0.1-SNAPSHOT
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: ignite-kafka-dc
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {
+          }
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      hostAliases:
+      - hostnames:
+        - kafka1
+        ip: 10.60.36.7
+      - hostnames:
+        - kafka2
+        ip: 10.60.36.11
+      - hostnames:
+        - kafka3
+        ip: 10.60.36.12
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {
+        }
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers: [
+    ]

@@ -1,0 +1,17 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app: ignite-kafka
+  name: ignite-kafka
+  namespace: ignite-kafka
+spec:
+  host: ignite-kafka.router.default.svc.cluster.local
+  path: /
+  port:
+    targetPort: web
+  to:
+    kind: Service
+    name: ignite-kafka
+    weight: 100
+  wildcardPolicy: None

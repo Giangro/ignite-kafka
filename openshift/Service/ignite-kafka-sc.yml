@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: ignite-kafka
+  name: ignite-kafka
+  namespace: ignite-kafka
+spec:
+  ports:
+  - name: web
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    deploymentconfig: ignite-kafka-dc
+  sessionAffinity: None
+  type: ClusterIP
