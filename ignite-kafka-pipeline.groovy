@@ -42,40 +42,7 @@ pipeline
                     target_cluster_flags = "--server=$ocp_cluster_url --insecure-skip-tls-verify"
                 }
             }
-        }
-        /*stage('Backup')
-        {
-            steps
-            {
-                script
-                {
-                    withCredentials([string(credentialsId: "$OCP_SERVICE_TOKEN", variable: 'SECRET')])
-                    {
-                        def buildnum = env.BUILD_NUMBER.toInteger()
-                        echo ""
-                        sh "mkdir -p /root/backupCM/${applicationString}_BUILD_${buildnum}/configmaps"
-                        sh "mkdir -p /root/backupCM/${applicationString}_BUILD_${buildnum}/deployments"
-
-                        echo "backing up config maps"
-                        String configMaps = sh(returnStdout: true, script:"${openShiftCLI} get configmaps --token=$SECRET --insecure-skip-tls-verify=true --namespace=${NAMESPACE}  $target_cluster_flags | tail -n +2 | awk '{print \$1}'")
-
-                        configMaps.split().each
-                        { app ->
-                            echo "backing up config map ${app}"
-                            sh(script: "${openShiftCLI} get --export configmaps ${app} -o yaml > /root/backupCM/${applicationString}_BUILD_${buildnum}/configmaps/${app}.yml --token=$SECRET --insecure-skip-tls-verify=true --namespace=${NAMESPACE}  $target_cluster_flags")
-                        }
-                        echo "backing up deployment configs"
-                        String deploymentConfigs = sh(returnStdout: true, script:"${openShiftCLI} get dc --token=$SECRET --insecure-skip-tls-verify=true --namespace=${NAMESPACE}  $target_cluster_flags | tail -n +2 |awk '{print \$1}'")
-
-                        deploymentConfigs.split().each
-                        { app ->
-                            echo "backing up deployment config ${app}"
-                            sh(script: "${openShiftCLI} get --export dc ${app} -o yaml > /root/backupCM/${applicationString}_BUILD_${buildnum}/deployments/${app}.yml --token=$SECRET --insecure-skip-tls-verify=true --namespace=${NAMESPACE}  $target_cluster_flags")
-                        }
-                    }
-                }
-            }
-        }*/
+        }       
         stage('Source checkout')
         {
             steps
@@ -98,8 +65,7 @@ pipeline
                     pom = readMavenPom file: 'pom.xml'
                     echo "Artificat ID: ${pom.artifactId}"
                     echo "Version: ${pom.version}"
-                    echo "Group ID: ${pom.groupId}"
-                    echo "Executing checkout ${APP_CONF_BUILD_TAG} ..."
+                    echo "Group ID: ${pom.groupId}"                    
                     echo "NAMESPACE ${NAMESPACE} ..."
                 }
             }
