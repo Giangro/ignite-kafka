@@ -13,15 +13,6 @@ server:
 general:
   message:  "hello world!"
 
-management:
-    endpoints:
-        shutdown:
-            enabled: true
-        info:
-            enabled: true
-        web:
-            exposure:
-                include: "*"
 spring:
   cloud:
     stream:
