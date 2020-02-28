@@ -26,6 +26,7 @@ import org.apache.ignite.configuration.DataRegionConfiguration;
 import org.apache.ignite.configuration.DataStorageConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
+import org.apache.ignite.spi.discovery.tcp.ipfinder.kubernetes.TcpDiscoveryKubernetesIpFinder;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.common.TopicPartition;
@@ -33,6 +34,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.binder.kafka.KafkaBindingRebalanceListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 /**
  *
@@ -46,24 +48,27 @@ import org.springframework.context.annotation.Configuration;
 public class Config {
 
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
-
+    
     @Value("${general.message}")
     private String message;
-    @Value("${enableFilePersistence}")
+    @Value("${enableFilePersistence:false}")
     private boolean enableFilePersistence;
-    @Value("${igniteConnectorPort}")
+    @Value("${igniteConnectorPort:11211}")
     private int igniteConnectorPort;
-    @Value("${igniteServerPortRange}")
+    @Value("${igniteServerPortRange:47500..47509}")
     private String igniteServerPortRange;
-    @Value("${ignitePersistenceFilePath}")
+    @Value("${ignitePersistenceFilePath:\\tmp}")
     private String ignitePersistenceFilePath;
-    @Value("${cacheName}")
+    @Value("${igniteKubeNamespace:ignite}")
+    private String nameSpace;   
+    @Value("${cacheName:cache}")
     private String cacheName;
 
     private static final String DATA_CONFIG_NAME = "MyDataRegionConfiguration";
 
+    @Profile("local")
     @Bean
-    IgniteConfiguration igniteConfiguration() {
+    IgniteConfiguration igniteConfigurationLocal() {
         IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
         igniteConfiguration.setWorkDirectory(ignitePersistenceFilePath);
         igniteConfiguration.setClientMode(false);
@@ -108,6 +113,59 @@ public class Config {
         tcpDiscoveryVmIpFinder.setAddresses(Arrays.asList("127.0.0.1:47500..47509"));
         tcpDiscoverySpi.setIpFinder(tcpDiscoveryVmIpFinder);
         igniteConfiguration.setLocalHost("127.0.0.1");
+        igniteConfiguration.setDiscoverySpi(tcpDiscoverySpi);
+
+        // cache configuration
+        CacheConfiguration kafkamessages = new CacheConfiguration();
+        kafkamessages.setCopyOnRead(false);
+        // as we have one node for now
+        kafkamessages.setBackups(1);
+        kafkamessages.setAtomicityMode(CacheAtomicityMode.ATOMIC);
+        kafkamessages.setName(cacheName);
+        kafkamessages.setDataRegionName(DATA_CONFIG_NAME);
+        kafkamessages.setWriteSynchronizationMode(CacheWriteSynchronizationMode.FULL_ASYNC);
+        kafkamessages.setIndexedTypes(String.class, String.class);
+
+        igniteConfiguration.setCacheConfiguration(kafkamessages);
+
+        return igniteConfiguration;
+
+    }
+    
+    @Profile("kube")
+    @Bean
+    IgniteConfiguration igniteConfigurationKube() {
+        IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
+        igniteConfiguration.setClientMode(false);
+        // durable file memory persistence
+        if (enableFilePersistence) {
+            logger.warn("Persistence Feature on Openshift/Kubernetes is not supported yet.");
+        } // if       
+        // common ignite configuration
+        igniteConfiguration.setMetricsLogFrequency(0);
+        igniteConfiguration.setQueryThreadPoolSize(2);
+        igniteConfiguration.setDataStreamerThreadPoolSize(1);
+        igniteConfiguration.setManagementThreadPoolSize(2);
+        igniteConfiguration.setPublicThreadPoolSize(2);
+        igniteConfiguration.setSystemThreadPoolSize(2);
+        igniteConfiguration.setRebalanceThreadPoolSize(1);
+        igniteConfiguration.setAsyncCallbackPoolSize(2);
+        igniteConfiguration.setPeerClassLoadingEnabled(false);
+        igniteConfiguration.setIgniteInstanceName("igniteKafkaGrid");
+        BinaryConfiguration binaryConfiguration = new BinaryConfiguration();
+        binaryConfiguration.setCompactFooter(false);
+        igniteConfiguration.setBinaryConfiguration(binaryConfiguration);
+        // cluster tcp configuration
+        TcpDiscoverySpi tcpDiscoverySpi = new TcpDiscoverySpi();
+        
+        TcpDiscoveryKubernetesIpFinder tcpDiscoveryKubernetesIpFinder 
+                = new TcpDiscoveryKubernetesIpFinder();
+       
+        tcpDiscoveryKubernetesIpFinder.setNamespace(nameSpace);
+       
+        // need to be changed when it come to real cluster
+        
+        tcpDiscoverySpi.setIpFinder(tcpDiscoveryKubernetesIpFinder);       
         igniteConfiguration.setDiscoverySpi(tcpDiscoverySpi);
 
         // cache configuration

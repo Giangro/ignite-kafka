@@ -1,0 +1,41 @@
+management:
+    endpoint:
+        shutdown:
+            enabled: true           
+    endpoints:
+        web:
+            exposure:
+                include: "*"
+
+server:
+  port : 8080
+
+general:
+  message:  "hello world!"
+
+management:
+    endpoints:
+        shutdown:
+            enabled: true
+        info:
+            enabled: true
+        web:
+            exposure:
+                include: "*"
+spring:
+  cloud:
+    stream:
+      bindings:
+            input.destination: ignite-kafka-channel
+            output.destination: ignite-kafka-channel
+      kafka:
+        binder:
+            brokers: origin.os.local:9092
+            minPartitionCount: 5
+            autoAddPartitions: true
+
+enableFilePersistence: false
+igniteKubeNamespace: ignite
+initialDelay: 10000
+fixedDelay: 60000      
+cacheName: KafkaMessage
