@@ -35,7 +35,9 @@ spec:
       containers:
       - env:
         - name: TZ
-          value: Europe/Rome                                                                                                  
+          value: Europe/Rome
+        - name: spring_profiles_active
+          value: kube
         image: docker-registry.default.svc:5000/ignite-kafka:0.0.1-SNAPSHOT
         imagePullPolicy: Always
         livenessProbe:
@@ -69,14 +71,8 @@ spec:
       dnsPolicy: ClusterFirst
       hostAliases:
       - hostnames:
-        - kafka1
-        ip: 10.60.36.7
-      - hostnames:
-        - kafka2
-        ip: 10.60.36.11
-      - hostnames:
-        - kafka3
-        ip: 10.60.36.12
+        - origin.os.local
+        ip: 10.0.2.15
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {
